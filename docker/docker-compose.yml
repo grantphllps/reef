@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  REEF_ESTIMATOR:
+    image: reef_estimator
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    container_name: reef_estimator
+    network_mode: "host"
+    devices: 
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    command: >
+      /bin/bash -c "source /home/reef_ws/devel/setup.bash &&
+                    roslaunch src/reef_estimator/launch/reef_apm_vicon.launch"
+    restart: unless-stopped
