@@ -1,0 +1,28 @@
+<launch>
+    <!-- Launch Vicon Bridge -->
+    <arg name="datastream_hostport" default="192.168.1.110"/>
+
+    <include file="$(find vicon_bridge)/launch/vicon.launch" >
+        <arg name="datastream_hostport" value="$(arg datastream_hostport)" />
+    </include>
+
+    <!-- Launch Mavros -->
+    <remap from="/mavros/imu/data" to="/imu/data" />
+    <arg name="fcu_url" default="/dev/ttyUSB0:921600" />
+
+    <include file="$(find mavros)/launch/apm.launch" >
+        <arg name="fcu_url" value="$(arg fcu_url)" />
+    </include>
+
+    <!-- Launch pixhaw_xform node-->
+    <arg name="name" default="SOMR" />
+    <include file="$(find pixhawk_xform)/launch/pix-reef-vicon.launch" >
+        <arg name="name" value="$(arg name)" />
+    </include>
+
+    <!-- Launch position to velocity node-->
+    <include file="$(find position_to_velocity)/launch/basic.launch"> </include>
+    
+    <!-- Launch Reef Estimator -->
+    <include file="$(find reef_estimator)/launch/estimator_only.launch" />
+</launch>

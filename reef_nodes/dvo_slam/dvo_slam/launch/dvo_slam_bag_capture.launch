@@ -1,0 +1,95 @@
+<launch>
+    <!-- runtime configuration -->
+    <arg name="run_rviz"              default="true"/>
+    <arg name="record_bagfile"        default="true"/>
+    <arg name="savefile" default="/tmp/rgbd-slam.bag"/>
+
+    <!-- namespaces -->
+    <arg name="camera" default="camera"/>
+
+    <arg name="rgb_image_topic" value="$(arg camera)/rgb/input_image"/>
+    <arg name="depth_image_topic" value="$(arg camera)/depth_registered/input_image"/>
+    <arg name="rgb_camera_info_topic" value="$(arg camera)/rgb/camera_info"/>
+    <arg name="depth_camera_info_topic" value="$(arg camera)/depth_registered/camera_info"/>
+        
+    <arg name="bag_topics" default="$(arg rgb_image_topic) $(arg rgb_camera_info_topic) $(arg depth_image_topic) $(arg depth_camera_info_topic)"/>
+    <node pkg="rosbag" type="record" name="rosbag_record" args="record -o $(arg savefile) $(arg bag_topics)" if="$(arg record_bagfile)" />
+        
+    <arg name="debug" default="false" />
+    <arg name="launch_prefix" value="xterm -e gdb --args" if="$(arg debug)" />
+    <arg name="launch_prefix" value="" unless="$(arg debug)" />
+
+    <group ns="$(arg camera)">
+        <param name="driver/data_skip" value="0" />
+        <remap from="depth_registered/image_raw" to="depth_registered/input_image"/>    
+        <remap from="rgb/image_raw" to="rgb/input_image"/> 
+        <!--<remap from="depth_registered/image_raw" to="depth_registered/image_rect_raw"/>    
+        <remap from="rgb/image_raw" to="rgb/image_rect"/>
+        <remap from="rgb/camera_info" to="rgb/camera_info"/>-->
+        <!--<remap from="depth_registered/camera_info" to="depth_registered/camera_info"/>-->
+        <include file="$(find rgbd_launch)/launch/includes/manager.launch.xml">
+            <arg name="name" value="$(arg camera)_nodelet_manager" />
+            <arg name="debug" value="false" />
+            <arg name="num_worker_threads"  value="4" />
+        </include>
+
+        <!-- Hardware depth registration -->
+        <arg name="depth_registration" default="true" />
+
+        <arg name="rgb_processing"                  default="true"  />
+        <arg name="debayer_processing"              default="false" />
+        <arg name="ir_processing"                   default="false" />
+        <arg name="depth_processing"                default="true" />
+        <arg name="depth_registered_processing"     default="true" />
+        <arg name="disparity_processing"            default="false" />
+        <arg name="disparity_registered_processing" default="false" />
+        <arg name="hw_registered_processing"        default="true" if="$(arg depth_registration)" />
+        <arg name="sw_registered_processing"        default="false" if="$(arg depth_registration)" />
+        <arg name="hw_registered_processing"        default="false" unless="$(arg depth_registration)" />
+        <arg name="sw_registered_processing"        default="true" unless="$(arg depth_registration)" />
+
+        <!-- Load astra driver -->
+        <include file="$(find astra_launch)/launch/includes/device.launch.xml">            
+            <arg name="manager"                         value="$(arg camera)_nodelet_manager" />
+            <arg name="device_id"                       value="#1" />
+            <arg name="bootorder"                       value="0" />
+            <arg name="devnums"                         value="1" />
+            <arg name="rgb_frame_id"                    value="$(arg camera)_rgb_optical_frame" />
+            <arg name="depth_frame_id"                  value="$(arg camera)_depth_optical_frame" />
+            <arg name="rgb_camera_info_url"             value="" />
+            <arg name="depth_camera_info_url"           value="" />
+            <arg name="rgb"                             value="rgb" />
+            <arg name="ir"                              value="ir" />
+            <arg name="depth"                           value="depth" />
+            <arg name="respawn"                         value="false" />
+            <arg name="depth_registration"              value="true" />
+            <arg name="color_depth_synchronization"     value="false" />
+            <arg name="auto_exposure"                   value="true" />
+            <arg name="auto_white_balance"              value="true" />
+        </include>
+        
+        <!-- Load standard constellation of processing nodelets -->
+        <!--<include file="$(find rgbd_launch)/launch/includes/processing.launch.xml">
+            <arg name="manager"                         value="$(arg camera)_nodelet_manager" />
+            <arg name="rgb"                             value="rgb" />
+            <arg name="ir"                              value="ir" />
+            <arg name="depth"                           value="depth" />
+            <arg name="respawn"                         value="false" />
+            <arg name="rgb_processing"                  value="$(arg rgb_processing)" />
+            <arg name="debayer_processing"              value="$(arg debayer_processing)" />
+            <arg name="ir_processing"                   value="$(arg ir_processing)" />
+            <arg name="depth_processing"                value="$(arg depth_processing)" />
+            <arg name="depth_registered_processing"     value="$(arg depth_registered_processing)" />
+            <arg name="disparity_processing"            value="$(arg disparity_processing)" /> 
+            <arg name="disparity_registered_processing" value="$(arg disparity_registered_processing)" />
+            <arg name="hw_registered_processing"        value="$(arg hw_registered_processing)" />
+            <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
+        </include> -->
+    </group>  
+
+    <!-- RVIZ SECTION -->
+    <arg name="rviz_config_file" default="dvo_slam.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
+          args="-d $(find dvo_slam)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
+
+</launch>

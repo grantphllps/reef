@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<package format="2">
+    <name>reef_teleop</name>
+    <version>0.0.0</version>
+    <description>The reef_teleop package</description>
+
+    <maintainer email="william.warke@ufl.edu">willie</maintainer>
+
+    <license>TODO</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>geometry_msgs</depend>
+    <depend>joy</depend>
+    <depend>roscpp</depend>
+    <depend>rospy</depend>
+    <depend>sensor_msgs</depend>
+    <depend>reef_msgs</depend>
+
+    <export>
+    </export>
+</package>

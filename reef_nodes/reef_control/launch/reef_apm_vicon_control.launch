@@ -1,0 +1,55 @@
+<launch>
+
+    <arg name="vehicle" default="SOMR"/>
+    <arg name="vehicle_type" default="hex"/>
+    <arg name="run_estimator" default="true"/>
+    <arg name="run_demo_rgbd" default="false"/>
+
+    <arg name="control_mode" value="velocity_altitude"/>
+    <arg name="record_bag" default="false"/>
+    <arg name="bag_name" default="velocity_control"/>
+
+    <!--    Launches the REEF teleop node to convert joystick commands to velocity command-->
+    <include file="$(find reef_teleop)/launch/xbox_controller.launch">
+        <arg name="control_mode" value="$(arg control_mode)"/>
+        <arg name="initial_z_cmd" value="-1.0"/>
+        <arg name="min_z_cmd" value="-3.0"/>
+        <arg name="max_z_cmd" value="0.0"/>
+        <arg name="invert_x" value="true"/>
+        <arg name="x_dot_max" default="2.00"/>
+        <arg name="y_dot_max" default="2.00"/>
+        <arg name="yawrate_max" default="1.57"/>   
+    </include>
+
+    <!-- Launch Vicon Bridge -->
+    <arg name="datastream_hostport" default="192.168.1.110"/>
+
+    <include file="$(find vicon_bridge)/launch/vicon.launch" >
+        <arg name="datastream_hostport" value="$(arg datastream_hostport)" />
+    </include>
+
+    <!-- Launch Mavros -->
+    <remap from="/mavros/imu/data" to="/imu/data" />
+    <arg name="fcu_url" default="/dev/ttyUSB0:921600" />
+
+    <include file="$(find mavros)/launch/apm.launch" >
+        <arg name="fcu_url" value="$(arg fcu_url)" />
+    </include>
+
+    <!-- Launch pixhaw_xform node-->
+    <arg name="name" default="SOMR" />
+    <include file="$(find pixhawk_xform)/launch/pix-reef-vicon.launch" >
+        <arg name="name" value="$(arg name)" />
+    </include>
+
+    <!-- Launch position to velocity node-->
+    <include file="$(find position_to_velocity)/launch/basic.launch"> </include>
+    
+    <!-- Launch Reef Estimator -->
+    <include file="$(find reef_estimator)/launch/estimator_only.launch" />
+
+    <!-- Runs the REEF Control node-->
+    <rosparam file="$(find reef_control)/params/$(arg vehicle_type)_pid.yaml" />
+    <node name="reef_control_pid" pkg="reef_control" type="reef_control_node" output="screen"/>
+
+</launch>

@@ -1,0 +1,11 @@
+<launch>
+<arg name="name" default="CROOKSHANKS" />
+<arg name="intermittent" default="false"/>
+<arg name="cage_only" default="false" />
+<arg name="z_modifier" default="-1" />
+
+<remap from="/pixhawk_xform/pose_stamped" to="/pose_stamped" />
+    
+<node name="pixhawk_xform" type="pixhawk_xform" pkg="pixhawk_xform" output="screen" args="$(arg name) $(arg intermittent) $(arg cage_only) $(arg z_modifier)"/>
+
+</launch>
