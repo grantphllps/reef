@@ -1,0 +1,3 @@
+#Ignore all .mov and .MOV
+*.mov
+*.MOV
