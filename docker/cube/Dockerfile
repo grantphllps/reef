@@ -50,7 +50,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Python packages
 RUN pip3 install \
     numpy \
-    pandas \
     scipy \
     matplotlib \
     pyserial \
@@ -67,11 +66,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && geographiclib-get-gravity egm96 \
     && geographiclib-get-magnetic emm2015 \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Python packages
-RUN pip3 install \
-    pyserial \
-    pymavlink
 
 # Install ROS packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -104,21 +98,21 @@ RUN sudo apt install ros-noetic-tf-conversions
 RUN apt-get install ros-noetic-roslint
 
 # Intel realsense camera things
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE 
-RUN apt-get install software-properties-common -y
-RUN apt-get update
-RUN add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
-RUN apt-get install librealsense2-dkms -y
-RUN apt-get install librealsense2-utils -y
-RUN apt-get install ros-$ROS_DISTRO-realsense2-camera -y
+#RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE 
+#RUN apt-get install software-properties-common -y
+#RUN apt-get update
+#RUN add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+#RUN apt-get install librealsense2-dkms -y
+#RUN apt-get install librealsense2-utils -y
+#RUN apt-get install ros-$ROS_DISTRO-realsense2-camera -y
 
 # Copy the reef nodes into the image
 COPY reef_nodes /home/reef_ws/src/
 
 # Build the ROS workspace
-RUN . /opt/ros/${ROS_DISTRO}/setup.sh \
-    && cd ${ROS_WS} \
-    && catkin_make -j1
+#RUN . /opt/ros/${ROS_DISTRO}/setup.sh \
+#    && cd ${ROS_WS} \
+#    && catkin_make -j1
 
 # Overlay the ROS environment on top of the existing environment
 COPY docker/ros_entrypoint.sh /
