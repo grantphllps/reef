@@ -8,5 +8,5 @@
     </include>
     
     <!-- Launch Reef Estimator -->
-    <include file="$(find reef_estimator)/launch/estimator_only.launch" />
+    <include file="$(find reef_estimator)/launch/estimator.launch" />
 </launch>
