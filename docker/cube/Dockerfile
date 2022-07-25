@@ -138,7 +138,7 @@ COPY reef_nodes /home/reef_ws/src/
 #    && catkin_make -j1
 
 # Overlay the ROS environment on top of the existing environment
-COPY docker/ros_entrypoint.sh /
+COPY docker/cube/ros_entrypoint.sh /
 RUN ["chmod", "+x", "/ros_entrypoint.sh"]
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]

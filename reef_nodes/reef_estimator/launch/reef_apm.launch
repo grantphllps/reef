@@ -1,0 +1,12 @@
+<launch>
+    <!-- Launch Mavros -->
+    <remap from="/mavros/imu/data" to="/imu/data" />
+    <arg name="fcu_url" default="/dev/ttyUSB0:921600" />
+
+    <include file="$(find mavros)/launch/apm.launch" >
+        <arg name="fcu_url" value="$(arg fcu_url)" />
+    </include>
+    
+    <!-- Launch Reef Estimator -->
+    <include file="$(find reef_estimator)/launch/estimator_only.launch" />
+</launch>
