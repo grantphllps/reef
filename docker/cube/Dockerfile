@@ -97,14 +97,37 @@ RUN sudo apt install ros-noetic-tf-conversions
 #Need this for some reason 
 RUN apt-get install ros-noetic-roslint
 
+RUN cd
+RUN mkdir /home/librealsense
+COPY libraries/librealsense/ /home/librealsense
+
+# RUN cd /home/librealsense
+# RUN cp /home/librealsense/config/99-realsense-libusb.rules /etc/udev/rules.d/ 
+# RUN sudo su
+# RUN udevadm control --reload-rules && udevadm trigger
+# RUN exit
+# RUN export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+# RUN source ~/.bashrc
+
+RUN wget https://github.com/PINTO0309/TBBonARMv7/raw/master/libtbb-dev_2018U2_armhf.deb
+RUN mv /home/catkin_ws/libtbb-dev_2018U2_armhf.deb /home/
+RUN dpkg -i ~/libtbb-dev_2018U2_armhf.deb
+RUN ldconfig
+RUN rm libtbb-dev_2018U2_armhf.deb
+RUN cd ~/librealsense
+RUN mkdir  build  && cd build
+RUN cmake .. -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=Release -DFORCE_LIBUVC=true
+RUN make -j1
+RUN sudo make install
+
 # Intel realsense camera things
-#RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE 
-#RUN apt-get install software-properties-common -y
-#RUN apt-get update
-#RUN add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
-#RUN apt-get install librealsense2-dkms -y
-#RUN apt-get install librealsense2-utils -y
-#RUN apt-get install ros-$ROS_DISTRO-realsense2-camera -y
+# RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE 
+# RUN apt-get install software-properties-common -y
+# RUN apt-get update
+# RUN add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u
+# RUN apt-get install librealsense2-dkms -y
+# RUN apt-get install librealsense2-utils -y
+# RUN apt-get install ros-$ROS_DISTRO-realsense2-camera -y
 
 # Copy the reef nodes into the image
 COPY reef_nodes /home/reef_ws/src/
