@@ -1,12 +1,17 @@
 <launch>
     <!-- Launch Mavros -->
     <remap from="/mavros/imu/data" to="/imu/data" />
+    <remap from="/mavros/rangefinder/rangefinder" to="/sonar" />
     <arg name="fcu_url" default="/dev/ttyUSB0:921600" />
 
     <include file="$(find mavros)/launch/apm.launch" >
         <arg name="fcu_url" value="$(arg fcu_url)" />
     </include>
-    
+
+    <!-- Realsense Stuff -->
+    <!-- include file="$(find demo_rgbd)/launch/demo_rgbd.launch"/ -->
+    <include file="$(find rgbd_to_velocity)/launch/rgbd_to_velocity.launch"/>
+
     <!-- Launch Reef Estimator -->
     <include file="$(find reef_estimator)/launch/estimator.launch" />
 </launch>
